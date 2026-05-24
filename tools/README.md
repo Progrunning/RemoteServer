@@ -1,5 +1,9 @@
 # Caddy
 
+## Install
+
+`brew install caddy` - installs CLI
+
 ## Auth
 
 Caddy provides a way to protect subdomains with basic auth. However, instead of providing the user and password in the config (/conf/Caddyfile) it requires a bcrypt hashed version of the password. Below how it works:

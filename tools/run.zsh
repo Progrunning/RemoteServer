@@ -1,3 +1,3 @@
 #!/bin/zsh
 
-docker compose up -d
+op run --environment 66rhejohkv6b4cgcom7lypnway docker compose up -d
