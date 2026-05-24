@@ -1,0 +1,64 @@
+networks:
+  shared:
+    name: shared
+    driver: bridge
+
+services:
+
+  ghost:
+    image: ghost:5.120.3
+    restart: always
+    networks:
+      - shared
+    ports:
+      - 8010:2368
+    environment:
+      # see https://ghost.org/docs/config/#configuration-options
+      database__client: mysql
+      database__connection__host: db
+      database__connection__user: ${PROGRUNNING_USER_DB_USER}
+      database__connection__password: "${PROGRUNNING_USER_DB_PASSWORD}"
+      database__connection__database: ${GHOST_DB_NAME}
+      # Had an issue with logging in to the admin interface, so added this
+      # https://github.com/TryGhost/Ghost/issues/23050#issuecomment-2876706273
+      security__staffDeviceVerification: false
+      # this url value is just an example, and is likely wrong for your environment!
+      # url: http://localhost:8010
+      url: https://progrunning.net
+      # contrary to the default mentioned in the linked documentation, this image defaults to NODE_ENV=production (so development mode needs to be explicitly specified if desired)
+      #NODE_ENV: development
+    volumes:
+      - ${GHOST_FILES_LOCATION}:/var/lib/ghost/content
+
+  db:
+    image: mysql:8.0
+    restart: always
+    networks:
+      - shared
+    # Expose ports outside of the container to connect with MyWorkbench or other tools
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: ${GHOST_DB_NAME}
+      MYSQL_USER: ${PROGRUNNING_USER_DB_USER}
+      MYSQL_PASSWORD: ${PROGRUNNING_USER_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: "${ROOT_DB_PASSWORD}"
+    volumes:
+      - db:/var/lib/mysql
+
+  # ghost-tunnel: 
+  #   image: cloudflare/cloudflared 
+  #   container_name: ghost-tunnel
+  #   dns: 
+  #     - 1.1.1.1
+  #     - 8.8.8.8
+  #   restart: unless-stopped 
+  #   command: tunnel run
+  #   env_file:
+  #     - path: ./.env
+  #       required: true
+
+
+volumes:
+  ghost:
+  db:

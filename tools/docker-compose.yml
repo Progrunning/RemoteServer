@@ -1,0 +1,80 @@
+networks:
+  shared:
+    name: shared
+    driver: bridge
+
+services:
+  arcane:
+    image: ghcr.io/getarcaneapp/arcane:latest
+    user: "${UID:-1001}:${GID:-1001}"
+    restart: unless-stopped
+    container_name: arcane
+    networks:
+      - shared
+    ports:
+      - '3552:3552'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - arcane-data:/app/data
+      # - /host/path/to/projects:/app/data/projects
+    environment:
+      - APP_URL=http://localhost:3552
+      - PUID=${UID:-1001}
+      - PGID=${GID:-1001}
+      - ENCRYPTION_KEY=ef50466b883c1858adfac9d564bb067f4609da961cb51b59c793db44c27ef992
+      - JWT_SECRET=239c9b7f1f7738a661e0bb477f4d84477807ad818e0d19a16cddb970e70c8593
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    container_name: grafana
+    networks:
+      - shared
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_SERVER_ROOT_URL=https://grafana.progrunning.net
+      - GF_SERVER_SERVE_FROM_SUB_PATH=false
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+  beszel:
+    image: beszel/beszel:latest
+    restart: unless-stopped
+    container_name: beszel
+    networks:
+      - shared
+    ports:
+      - '8090:8090'
+    environment:
+      - ADMIN_PASSWORD=${BESZEL_ADMIN_PASSWORD:-admin}
+    volumes:
+      - beszel-data:/beszel_data
+    
+  caddy:
+    image: caddy:2.11.3
+    user: "${UID:-1001}:${GID:-1001}"
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - shared
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - $PWD/conf:/etc/caddy
+      - $PWD/site:/srv
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  arcane-data:
+  caddy_data:
+  caddy_config:
+  grafana-storage:
+  beszel-data:
