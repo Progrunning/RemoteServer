@@ -54,21 +54,20 @@ services:
     volumes:
       - beszel-data:/beszel_data
     
-  caddy:
-    image: caddy:2.11.3
+  caddy:    
+    build: caddy/
+    container_name: caddy
     user: "${UID:-1001}:${GID:-1001}"
-    restart: unless-stopped
-    cap_add:
-      - NET_ADMIN
+    restart: unless-stopped    
+    environment:
+      - CLOUDFLARE_API_TOKEN=${CADDY_CLOUDFLARE_API_TOKEN}
     networks:
       - shared
     ports:
       - "80:80"
-      - "443:443"
-      - "443:443/udp"
+      - "443:443"      
     volumes:
-      - ./conf:/etc/caddy
-      - ./site:/srv
+      - ./caddy/conf:/etc/caddy      
       - caddy_data:/data
       - caddy_config:/config
 

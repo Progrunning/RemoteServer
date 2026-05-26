@@ -1,0 +1,20 @@
+# This is a multi-stage Docker build. Here's what's happening:
+
+# Stage 1: Builder
+
+# Starts with the caddy:builder image (named "builder" for reference)
+# Uses xcaddy (Caddy's build tool) to compile Caddy with an additional plugin: Cloudflare DNS
+# This creates a custom Caddy binary with DNS functionality for Cloudflare domains
+# Stage 2: Final Image
+
+# Creates a fresh final image starting from the official caddy:2.11.3
+# COPY --from=builder copies the custom-built Caddy binary from the builder stage and replaces the standard one in the final image
+
+FROM caddy:builder AS builder
+
+RUN xcaddy build \
+    --with github.com/caddy-dns/cloudflare
+
+FROM caddy:2.11.3
+
+COPY --from=builder /usr/bin/caddy /usr/bin/caddy
