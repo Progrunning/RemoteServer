@@ -15,7 +15,7 @@ services:
       - '3552:3552'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - arcane-data:/app/data
+      - /srv/docker/arcane/data:/app/data
       # - /host/path/to/projects:/app/data/projects
     environment:
       - APP_URL=http://localhost:3552
@@ -42,7 +42,7 @@ services:
       - grafana-storage:/var/lib/grafana
 
   beszel:
-    image: beszel/beszel:latest
+    image: henrygd/beszel:latest
     restart: unless-stopped
     container_name: beszel
     networks:
@@ -67,8 +67,8 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
-      - $PWD/conf:/etc/caddy
-      - $PWD/site:/srv
+      - ./conf:/etc/caddy
+      - ./site:/srv
       - caddy_data:/data
       - caddy_config:/config
 

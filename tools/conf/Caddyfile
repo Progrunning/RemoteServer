@@ -1,17 +1,11 @@
 # Main blog domain
 progrunning.net, www.progrunning.net {
-    reverse_proxy ghost:2368 {
-        header_uri -X-Forwarded-Proto https
-        header_uri -X-Forwarded-Host progrunning.net
-    }
+    reverse_proxy ghost:2368
 }
 
 # Arcane service (Docker container manager)
 arcane.progrunning.net {
-    reverse_proxy arcane:3552 {
-        header_uri -X-Forwarded-Proto https
-        header_uri -X-Forwarded-Host arcane.progrunning.net
-    }
+    reverse_proxy arcane:3552
 }
 
 # Grafana service (Monitoring & Visualization)
@@ -19,10 +13,7 @@ grafana.progrunning.net {
     basicauth / {
         {$GRAFANA_USER} {$GRAFANA_PASSWORD_HASH}
     }
-    reverse_proxy grafana:3000 {
-        header_uri -X-Forwarded-Proto https
-        header_uri -X-Forwarded-Host grafana.progrunning.net
-    }
+    reverse_proxy grafana:3000
 }
 
 # Beszel service (System Monitoring)
@@ -30,10 +21,7 @@ beszel.progrunning.net {
     basicauth / {
         {$BESZEL_USER} {$BESZEL_PASSWORD_HASH}
     }
-    reverse_proxy beszel:8090 {
-        header_uri -X-Forwarded-Proto https
-        header_uri -X-Forwarded-Host beszel.progrunning.net
-    }
+    reverse_proxy beszel:8090
 }
 
 # Caddy admin API (optional, for management)
