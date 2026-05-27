@@ -9,7 +9,7 @@
 ```
 example.com {
     tls {
-        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+        dns cloudflare {$CLOUDFLARE_API_TOKEN}
     }
     
     reverse_proxy your_app_container:8080
@@ -17,6 +17,10 @@ example.com {
 ```
 
 > NOTE: the `tls` section can be removed after the certificate gets created
+
+## Reload configuration
+
+`docker exec -w /etc/caddy caddy caddy reload`
 
 ## Install
 
@@ -35,3 +39,7 @@ User enters password: "MySecurePassword123"
 Caddy verifies it matches ✅
 
 To generate password, run the `generate-password.sh` script
+
+## Formatting
+
+Run this command `caddy fmt --overwrite` in the directory with the `Caddyfile`

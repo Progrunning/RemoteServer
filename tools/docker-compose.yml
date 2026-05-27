@@ -4,6 +4,23 @@ networks:
     driver: bridge
 
 services:
+  caddy:    
+    build: caddy/
+    container_name: caddy
+    user: "${UID:-1001}:${GID:-1001}"
+    restart: unless-stopped    
+    environment:      
+      - CLOUDFLARE_API_TOKEN=${CADDY_CLOUDFLARE_API_TOKEN}
+    networks:
+      - shared
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/conf:/etc/caddy      
+      - caddy_data:/data
+      - caddy_config:/config
+
   arcane:
     image: ghcr.io/getarcaneapp/arcane:latest
     user: "${UID:-1001}:${GID:-1001}"
@@ -22,10 +39,40 @@ services:
       - PUID=${UID:-1001}
       - PGID=${GID:-1001}
       - ENCRYPTION_KEY=ef50466b883c1858adfac9d564bb067f4609da961cb51b59c793db44c27ef992
-      - JWT_SECRET=239c9b7f1f7738a661e0bb477f4d84477807ad818e0d19a16cddb970e70c8593
+      - JWT_SECRET=239c9b7f1f7738a661e0bb477f4d84477807ad818e0d19a16cddb970e70c8593  
+
+  beszel:
+    image: henrygd/beszel:latest
+    user: "${UID:-1001}:${GID:-1001}"
+    restart: unless-stopped
+    container_name: beszel
+    networks:
+      - shared
+    ports:
+      - '8090:8090'          
+    volumes:
+      - /srv/docker/beszel/data:/beszel_data      
+  
+  beszel-agent:
+    image: henrygd/beszel-agent
+    user: "${UID:-1001}:${GID:-1001}"
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /srv/docker/beszel/agent:/var/lib/beszel-agent
+      # monitor other disks / partitions by mounting a folder in /extra-filesystems
+      # - /mnt/disk/.beszel:/extra-filesystems/sda1:ro
+    environment:
+      LISTEN: 45876
+      KEY: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKFZE2qZ3aKMwWt3NPqysZpetFhAmUtTCAaxA2p8Pk8L'
+      TOKEN: 51155340-e7f0-464b-995d-e9bc21d6b765
+      HUB_URL: https://beszel.progrunning.net
 
   grafana:
     image: grafana/grafana:latest
+    user: "${UID:-1001}:${GID:-1001}"
     restart: unless-stopped
     container_name: grafana
     networks:
@@ -41,39 +88,7 @@ services:
     volumes:
       - grafana-storage:/var/lib/grafana
 
-  beszel:
-    image: henrygd/beszel:latest
-    restart: unless-stopped
-    container_name: beszel
-    networks:
-      - shared
-    ports:
-      - '8090:8090'
-    environment:
-      - ADMIN_PASSWORD=${BESZEL_ADMIN_PASSWORD:-admin}
-    volumes:
-      - beszel-data:/beszel_data
-    
-  caddy:    
-    build: caddy/
-    container_name: caddy
-    user: "${UID:-1001}:${GID:-1001}"
-    restart: unless-stopped    
-    environment:
-      - CLOUDFLARE_API_TOKEN=${CADDY_CLOUDFLARE_API_TOKEN}
-    networks:
-      - shared
-    ports:
-      - "80:80"
-      - "443:443"      
-    volumes:
-      - ./caddy/conf:/etc/caddy      
-      - caddy_data:/data
-      - caddy_config:/config
-
-volumes:
-  arcane-data:
+volumes:  
   caddy_data:
   caddy_config:
-  grafana-storage:
-  beszel-data:
+  grafana-storage:  
