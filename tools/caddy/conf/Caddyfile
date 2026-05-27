@@ -2,11 +2,23 @@
 # progrunning.net, www.progrunning.net {
 #     reverse_proxy ghost:2368
 # }
-# 
+ 
+bgc.progrunning.net {
+	reverse_proxy bgc_api_blue:443
+}
+
 # Arcane service (Docker container manager)
 arcane.progrunning.net {
 	reverse_proxy arcane:3552
 }
+
+# Beszel service (System Monitoring)
+beszel.progrunning.net {
+	reverse_proxy beszel:8090
+}
+
+
+
 # 
 # # Grafana service (Monitoring & Visualization)
 # grafana.progrunning.net {
@@ -15,8 +27,3 @@ arcane.progrunning.net {
 #     }
 #     reverse_proxy grafana:3000
 # }
-
-# Beszel service (System Monitoring)
-beszel.progrunning.net {
-	reverse_proxy beszel:8090
-}

@@ -3,11 +3,12 @@ version: '3.4'
 name: bgc
 
 services:
-  bgc_api: 
-    container_name: bgc_api
+  bgc_api_blue: 
+    container_name: bgc_api_blue
     image: mkieres/bgc:1455
+    restart: unless-stopped
     ports:
-      - 80♥
+      - 80
       - 443
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -16,3 +17,18 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
     volumes:
       - ~/.aspnet/https:/https:ro
+
+  # bgc_api_green: 
+  #   container_name: bgc_api_green
+  #   image: mkieres/bgc:1455
+  #   restart: unless-stopped
+  #   ports:
+  #     - 80
+  #     - 443
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=https://+:443;http://+:80
+  #     - ASPNETCORE_Kestrel__Certificates__Default__Password=-\0pw-
+  #     - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+  #   volumes:
+  #     - ~/.aspnet/https:/https:ro
