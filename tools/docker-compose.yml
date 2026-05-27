@@ -52,6 +52,7 @@ services:
       - '8090:8090'          
     volumes:
       - /srv/docker/beszel/data:/beszel_data      
+      - /srv/docker/beszel/socket:/beszel_socket
   
   beszel-agent:
     image: henrygd/beszel-agent
@@ -62,13 +63,14 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/docker/beszel/agent:/var/lib/beszel-agent
+      - /srv/docker/beszel/socket:/beszel_socket
       # monitor other disks / partitions by mounting a folder in /extra-filesystems
       # - /mnt/disk/.beszel:/extra-filesystems/sda1:ro
     environment:
-      LISTEN: 45876
+      LISTEN: /beszel_socket/beszel.sock
       KEY: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKFZE2qZ3aKMwWt3NPqysZpetFhAmUtTCAaxA2p8Pk8L'
       TOKEN: 51155340-e7f0-464b-995d-e9bc21d6b765
-      HUB_URL: https://beszel.progrunning.net
+      HUB_URL: http://localhost:8090
 
   grafana:
     image: grafana/grafana:latest
